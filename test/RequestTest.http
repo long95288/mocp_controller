@@ -1,0 +1,19 @@
+POST http://192.168.0.4:9898/cmd
+Accept: */*
+Cache-Control: no-cache
+
+{ "cmd":"TogglePause" }
+
+###
+POST http://192.168.0.4:9898/cmd
+Accept: */*
+Cache-Control: no-cache
+
+{ "cmd":"Pause" }
+
+###
+POST http://192.168.0.4:9898/cmd
+Accept: */*
+Cache-Control: no-cache
+
+{ "cmd":"UnPause" }
