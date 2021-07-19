@@ -17,3 +17,51 @@ Accept: */*
 Cache-Control: no-cache
 
 { "cmd":"UnPause" }
+
+###
+POST http://192.168.0.4:9898/cmd
+Accept: */*
+Cache-Control: no-cache
+
+{
+"cmd":"Volume",
+"level": 20
+ }
+
+###
+POST http://192.168.0.4:9898/cmd
+Accept: */*
+Cache-Control: no-cache
+
+{
+"cmd":"Volume",
+"level": 100
+ }
+
+###
+POST http://192.168.0.4:9898/cmd
+Accept: */*
+Cache-Control: no-cache
+
+{
+"cmd":"Stop"
+}
+
+###
+POST http://192.168.0.4:9898/cmd
+Accept: */*
+Cache-Control: no-cache
+
+{
+"cmd":"Play"
+}
+
+###
+POST http://192.168.0.4:9898/cmd
+Accept: */*
+Cache-Control: no-cache
+
+{
+"cmd":"GetCtlList"
+}
+

@@ -2,6 +2,7 @@ package main
 
 import (
     "fmt"
+    "log"
     "os/exec"
 )
 
@@ -62,7 +63,17 @@ Environment variables:
 const execScript ="mocp"
 
 type MocpPlayer struct {
+    CtlList []string
 }
+
+func NewMocpPlayer() (MocpPlayer) {
+    m := MocpPlayer{}
+    m.CtlList = []string{"shuffle", "autonext", "repeat"}
+    log.Println("init Mocp Player")
+    return m
+}
+
+
 
 func (m *MocpPlayer) Pause() error {
     return exec.Command(execScript, "-P").Run()
@@ -98,6 +109,22 @@ func (m *MocpPlayer) Volume(level int) error {
 
 func (m *MocpPlayer) Exit() error {
     return exec.Command(execScript, "-x").Run()
+}
+
+func (m *MocpPlayer) Play() error {
+    return exec.Command(execScript, "-p").Run()
+}
+
+func (m *MocpPlayer) ToggleCtl(ctl string) error {
+    return exec.Command(execScript, []string{"-t", ctl}...).Run()
+}
+
+func (m *MocpPlayer) TurnOnCtl(ctl string) error {
+    return exec.Command(execScript, []string{"-o", ctl}...).Run()
+}
+
+func (m *MocpPlayer) TurnOffCtl(ctl string) error {
+    return exec.Command(execScript, []string{"-u", ctl}...).Run()
 }
 
 

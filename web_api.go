@@ -2,6 +2,8 @@ package main
 
 import (
     "encoding/json"
+    "errors"
+    "fmt"
     "github.com/gin-gonic/gin"
     "io/ioutil"
     "log"
@@ -33,7 +35,7 @@ const (
     PALY_RUN_CMD_ERR = 20003
 )
 
-var player = MocpPlayer{}
+var player = NewMocpPlayer()
 
 func CMDHandler(context *gin.Context) {
     body,err := ioutil.ReadAll(context.Request.Body)
@@ -45,6 +47,7 @@ func CMDHandler(context *gin.Context) {
     if err != nil {
         ResponseError(context, GETCMDBYBODY_ERR, "")
     }
+    var resp interface{} = nil
     
     if cmd == "Pause" {
         err = player.Pause()
@@ -54,11 +57,33 @@ func CMDHandler(context *gin.Context) {
         err = player.TogglePause()
     }else if cmd == "Stop" {
         err = player.Stop()
+    }else if cmd == "Volume" {
+        if level,err := GetVolumeByBody(body);nil == err {
+            err = player.Volume(level)
+        }
+    }else if cmd == "Play" {
+        err = player.Play()
+    } else if cmd == "GetCtlList" {
+        resp = player.CtlList
+    } else if cmd == "ToggleCtl" {
+        if ctl, err := GetCtlByBody(body);nil == err {
+            err = player.ToggleCtl(ctl)
+        }
+    }else if cmd == "TurnOnCtl" {
+        if ctl, err := GetCtlByBody(body);nil == err {
+            err = player.TurnOnCtl(ctl)
+        }
+    }else if cmd == "TurnOffCtl" {
+        if ctl,err := GetCtlByBody(body);nil == err {
+            err = player.TurnOffCtl(ctl)
+        }
+    }else{
+        err = errors.New(fmt.Sprintf("Unknow cmd %s\n", cmd))
     }
     if err != nil {
         ResponseError(context, PALY_RUN_CMD_ERR ,err.Error())
     }
-    ResponseSuccess(context, cmd, nil)
+    ResponseSuccess(context, cmd, resp)
 }
 
 func GetCMDByBody(body []byte) (string, error) {
@@ -70,6 +95,26 @@ func GetCMDByBody(body []byte) (string, error) {
         return "", err
     }
     return header.CMD, nil
+}
+
+func GetVolumeByBody(body []byte) (level int, err error) {
+    _body := struct {
+        Level int `json:"level"`
+    }{}
+    if err = json.Unmarshal(body, &_body);err != nil {
+        return 0,err
+    }
+    return _body.Level, nil
+}
+
+func GetCtlByBody(body []byte)(ctl string, err error) {
+    _body := struct {
+        Ctl string `json:"ctl"`
+    }{}
+    if err = json.Unmarshal(body, &body);err!=nil{
+        return "", err
+    }
+    return _body.Ctl, nil
 }
 
 func ResponseError(c *gin.Context, status int, message string) {
