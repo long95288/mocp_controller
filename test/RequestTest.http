@@ -65,3 +65,13 @@ Cache-Control: no-cache
 "cmd":"GetCtlList"
 }
 
+
+###
+POST http://192.168.0.4:9898/cmd
+Accept: */*
+Cache-Control: no-cache
+
+{
+"cmd":"GetInfo"
+}
+

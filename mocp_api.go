@@ -127,6 +127,11 @@ func (m *MocpPlayer) TurnOffCtl(ctl string) error {
     return exec.Command(execScript, []string{"-u", ctl}...).Run()
 }
 
+func (m *MocpPlayer) Info() ([]byte, error) {
+    cmd := exec.Command(execScript, "-i")
+    return cmd.CombinedOutput()
+}
+
 
 
 
