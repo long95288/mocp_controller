@@ -4,6 +4,7 @@ import (
     "fmt"
     "log"
     "os/exec"
+    "strings"
 )
 
 /**
@@ -62,8 +63,25 @@ Environment variables:
 
 const execScript ="mocp"
 
+type Info struct {
+    State string `json:"state"`
+    File  string `json:"file"`
+    Title string `json:"title"`
+    Artist string `json:"artist"`
+    SongTitle string `json:"song_title"`
+    Album string `json:"album"`
+    TotalTime string `json:"total_time"`
+    TimeLeft string `json:"time_left"`
+    TotalSec string `json:"total_sec"`
+    CurrentTime string `json:"current_time"`
+    Bitrate string `json:"bitrate"`
+    AvgBitrate string `json:"avg_bitrate"`
+    Rate string `json:"rate"`
+}
+
 type MocpPlayer struct {
-    CtlList []string
+    CtlList  []string
+    MocpInfo Info
 }
 
 func NewMocpPlayer() (MocpPlayer) {
@@ -127,9 +145,59 @@ func (m *MocpPlayer) TurnOffCtl(ctl string) error {
     return exec.Command(execScript, []string{"-u", ctl}...).Run()
 }
 
-func (m *MocpPlayer) Info() ([]byte, error) {
+func (m *MocpPlayer) Info() (*Info, error) {
     cmd := exec.Command(execScript, "-i")
-    return cmd.CombinedOutput()
+    infoStr, err := cmd.CombinedOutput()
+    if nil != err {
+        return nil,err
+    }
+    
+    for _, str := range strings.Split(string(infoStr), "\n") {
+        // 直接找到第一个":"作为分割点
+        key := ""
+        value := ""
+        for i, v := range str {
+            if v == ':' {
+                key = strings.TrimSpace(str[:i])
+                if i < len(str) {
+                    value = strings.TrimSpace(str[i + 1:])
+                }
+                break
+            }
+        }
+        // log.Printf("key:%s value:%s\n", key, value)
+        
+        if "State" == key {
+            m.MocpInfo.State = value
+        }else if "File" == key {
+            m.MocpInfo.File = value
+        }else if "Title" == key {
+            m.MocpInfo.Title = value
+        }else if "Artist" == key {
+            m.MocpInfo.Artist = value
+        }else if "SongTitle" == key {
+            m.MocpInfo.SongTitle = value
+        }else if "Album" == key {
+            m.MocpInfo.Album = value
+        }else if "TotalTime" == key {
+            m.MocpInfo.TotalTime = value
+        }else if "TimeLeft" == key {
+            m.MocpInfo.TimeLeft = value
+        }else if "TotalSec" == key {
+            m.MocpInfo.TotalSec = value
+        }else if "CurrentTime" == key {
+            m.MocpInfo.CurrentTime = value
+        }else if "Bitrate" == key {
+            m.MocpInfo.Bitrate = value
+        }else if "AvgBitrate" == key {
+            m.MocpInfo.AvgBitrate = value
+        }else if "Rate" == key {
+            m.MocpInfo.Rate = value
+        }else{
+            log.Printf("Unknown key[%s], value[%s]\n", key, value)
+        }
+    }
+    return &m.MocpInfo, nil
 }
 
 

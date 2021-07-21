@@ -79,7 +79,6 @@ func CMDHandler(context *gin.Context) {
         }
     }else if cmd == "GetInfo" {
         resp, err = player.Info()
-        resp = string(resp.([]byte))
     }else{
         err = errors.New(fmt.Sprintf("Unknow cmd %s\n", cmd))
     }
